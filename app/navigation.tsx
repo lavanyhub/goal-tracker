@@ -46,6 +46,7 @@ export default function Navigation() {
             <a href="/dashboard" className="hover:underline">Dashboard</a>
             <a href="/approvals" className="hover:underline">Approvals</a>
             <a href="/checkins" className="hover:underline">Check-ins</a>
+            <a href="/completion" className="hover:underline">Completion</a>
           </>
         )}
         {role === 'admin' && (
@@ -53,6 +54,8 @@ export default function Navigation() {
             <a href="/dashboard" className="hover:underline">Dashboard</a>
             <a href="/approvals" className="hover:underline">Approvals</a>
             <a href="/goals" className="hover:underline">All Goals</a>
+            <a href="/shared-goals" className="hover:underline">Shared Goals</a>
+            <a href="/completion" className="hover:underline">Completion</a>
             <a href="/audit" className="hover:underline">Audit Trail</a>
             <a href="/analytics" className="hover:underline">Analytics</a>
           </>

@@ -91,8 +91,12 @@ function AchievementCard({ goal, onUpdate }: { goal: any, onUpdate: any }) {
 
   const getScore = () => {
     if (!actualValue) return 0
-    if (goal.uom_type === 'Zero-based') return Number(actualValue) == 0 ? 100 : 0
-    return Math.min(Math.round((Number(actualValue) / goal.target) * 100), 100)
+    const actual = Number(actualValue)
+    const target = Number(goal.target)
+    if (goal.uom_type === 'Zero-based') return actual === 0 ? 100 : 0
+    if (goal.uom_type === 'Timeline') return actual <= target ? 100 : Math.max(0, Math.round((target / actual) * 100))
+    if (goal.uom_type === '%') return Math.min(Math.round((actual / target) * 100), 100)
+    return Math.min(Math.round((actual / target) * 100), 100)
   }
 
   const score = getScore()

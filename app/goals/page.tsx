@@ -2,6 +2,16 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
+const getActivePhase = () => {
+  const month = new Date().getMonth() + 1
+  if (month === 5) return 'GOAL_SETTING'
+  if (month >= 7 && month <= 9) return 'Q1_CHECKIN'
+  if (month >= 10 && month <= 12) return 'Q2_CHECKIN'
+  if (month >= 1 && month <= 3) return 'Q3_CHECKIN'
+  if (month >= 3 && month <= 4) return 'Q4_ANNUAL'
+  return 'CLOSED'
+}
+
 export default function Goals() {
   const [goals, setGoals] = useState([])
   const [user, setUser] = useState<any>(null)
@@ -114,6 +124,8 @@ export default function Goals() {
     }
   }
 
+  const phase = getActivePhase()
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white shadow p-4 flex justify-between items-center">
@@ -122,18 +134,26 @@ export default function Goals() {
           <span className="text-sm text-gray-600">
             Total Weightage: <strong>{totalWeightage}%</strong> / 100%
           </span>
-          <button
-            onClick={handleSubmitAll}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Submit for Approval
-          </button>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            + Add Goal
-          </button>
+          {phase === 'GOAL_SETTING' ? (
+            <>
+              <button
+                onClick={handleSubmitAll}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Submit for Approval
+              </button>
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                + Add Goal
+              </button>
+            </>
+          ) : (
+            <span className="text-sm text-red-500 font-medium">
+              Goal setting closed. Current phase: {phase}
+            </span>
+          )}
         </div>
       </div>
 
