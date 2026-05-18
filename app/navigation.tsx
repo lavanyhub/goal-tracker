@@ -27,17 +27,7 @@ export default function Navigation() {
     window.location.href = '/'
   }
 
-  if (loading) return (
-    <nav style={{backgroundColor: '#2563eb', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-      <div style={{width: '180px', height: '24px', borderRadius: '6px', background: 'linear-gradient(90deg, #1d4ed8 25%, #3b82f6 50%, #1d4ed8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite'}}/>
-      <div style={{display: 'flex', gap: '16px'}}>
-        <div style={{width: '80px', height: '18px', borderRadius: '4px', background: 'linear-gradient(90deg, #1d4ed8 25%, #3b82f6 50%, #1d4ed8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite'}}/>
-        <div style={{width: '80px', height: '18px', borderRadius: '4px', background: 'linear-gradient(90deg, #1d4ed8 25%, #3b82f6 50%, #1d4ed8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite'}}/>
-        <div style={{width: '80px', height: '18px', borderRadius: '4px', background: 'linear-gradient(90deg, #1d4ed8 25%, #3b82f6 50%, #1d4ed8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite'}}/>
-      </div>
-      <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
-    </nav>
-  )
+  if (loading) return null
 
   if (!role) return null
 
