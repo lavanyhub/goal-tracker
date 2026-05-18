@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient'
 
 export default function Achievements() {
   const [goals, setGoals] = useState([])
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState(null)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function Achievements() {
     getUser()
   }, [])
 
-  const fetchGoals = async (email) => {
+  const fetchGoals = async (email: any) => {
     const { data: userData } = await supabase
       .from('users')
       .select('id')
