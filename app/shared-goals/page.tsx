@@ -4,14 +4,15 @@ import { supabase } from '../supabaseClient'
 
 export default function SharedGoals() {
   const [employees, setEmployees] = useState<any[]>([])
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
+  const [sharedGoals, setSharedGoals] = useState<any[]>([])
+  const [thrustArea, setThrustArea] = useState('')
+  const [uom, setUom] = useState('Numeric')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [target, setTarget] = useState('')
-  const [thrustArea, setThrustArea] = useState('')
-  const [uom, setUom] = useState('Numeric')
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
   const [message, setMessage] = useState('')
-  const [sharedGoals, setSharedGoals] = useState<any[]>([])
+  const [messageType, setMessageType] = useState('success')
 
   useEffect(() => {
     fetchEmployees()
@@ -24,153 +25,121 @@ export default function SharedGoals() {
   }
 
   const fetchSharedGoals = async () => {
-    const { data } = await supabase
-      .from('goals')
-      .select('*')
-      .eq('is_shared', true)
-      .eq('is_primary_owner', true)
+    const { data } = await supabase.from('goals').select('*, users(name,email)').eq('is_shared', true)
     setSharedGoals(data || [])
   }
 
-  const toggleEmployee = (id: string) => {
-    setSelectedEmployees(prev =>
-      prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
-    )
+  const showToast = (msg: string, type: string = 'success') => {
+    setMessage(msg)
+    setMessageType(type)
+    setTimeout(() => setMessage(''), 3000)
   }
 
-  const handlePushGoal = async () => {
-    if (!title || !target || !thrustArea || selectedEmployees.length === 0) {
-      setMessage('Please fill all fields and select at least one employee!')
+  const handlePush = async () => {
+    if (!title || !target || selectedEmployees.length === 0) {
+      showToast('Please fill all fields and select at least one employee!', 'error')
       return
     }
-
-    for (let i = 0; i < selectedEmployees.length; i++) {
-      const empId = selectedEmployees[i]
+    for (const empId of selectedEmployees) {
       await supabase.from('goals').insert({
         employee_id: empId,
+        thrust_area: thrustArea,
+        uom_type: uom,
         title,
         description,
         target: Number(target),
         weightage: 10,
-        status: 'draft',
-        locked: false,
+        status: 'approved',
+        locked: true,
         quarter: 'Q1',
-        thrust_area: thrustArea,
-        uom_type: uom,
-        is_shared: true,
-        is_primary_owner: i === 0
+        is_shared: true
       })
     }
-
-    setMessage(`Goal pushed to ${selectedEmployees.length} employees!`)
+    showToast('Goal pushed to selected employees!')
     setTitle('')
     setDescription('')
     setTarget('')
-    setThrustArea('')
     setSelectedEmployees([])
     fetchSharedGoals()
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white shadow p-4">
-        <h1 className="text-xl font-bold text-blue-600">Shared Goals</h1>
-      </div>
+    <div style={{minHeight: '100vh', backgroundColor: '#f1f5f9', padding: '32px'}}>
+      {message && (
+        <div style={{position: 'fixed', top: '20px', right: '20px', zIndex: 999, padding: '12px 20px', borderRadius: '8px', color: 'white', fontWeight: '500', backgroundColor: messageType === 'success' ? '#22c55e' : '#ef4444'}}>
+          {message}
+        </div>
+      )}
+      <div style={{maxWidth: '1100px', margin: '0 auto'}}>
+        <h1 style={{fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px'}}>Shared Goals</h1>
+        <p style={{fontSize: '14px', color: '#64748b', marginBottom: '32px'}}>Push goals to multiple employees at once</p>
 
-      <div className="p-8 grid grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Push Goal to Employees</h2>
-
-          {message && (
-            <div className="bg-green-100 text-green-800 p-3 rounded mb-4">{message}</div>
-          )}
-
-          <select
-            value={thrustArea}
-            onChange={(e) => setThrustArea(e.target.value)}
-            className="w-full border p-2 rounded mb-3 bg-gray-50 text-gray-800"
-          >
-            <option value="">Select Thrust Area</option>
-            <option value="Revenue Growth">Revenue Growth</option>
-            <option value="Customer Success">Customer Success</option>
-            <option value="Operational Excellence">Operational Excellence</option>
-            <option value="People Development">People Development</option>
-            <option value="Innovation">Innovation</option>
-          </select>
-
-          <select
-            value={uom}
-            onChange={(e) => setUom(e.target.value)}
-            className="w-full border p-2 rounded mb-3 bg-gray-50 text-gray-800"
-          >
-            <option value="Numeric">Numeric</option>
-            <option value="%">Percentage (%)</option>
-            <option value="Timeline">Timeline</option>
-            <option value="Zero-based">Zero-based</option>
-          </select>
-
-          <input
-            type="text"
-            placeholder="Goal Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border p-2 rounded mb-3 bg-gray-50 text-gray-800"
-          />
-
-          <textarea
-            placeholder="Description (optional)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full border p-2 rounded mb-3 bg-gray-50 text-gray-800"
-          />
-
-          <input
-            type="number"
-            placeholder="Target Value"
-            value={target}
-            onChange={(e) => setTarget(e.target.value)}
-            className="w-full border p-2 rounded mb-3 bg-gray-50 text-gray-800"
-          />
-
-          <h3 className="font-medium text-gray-700 mb-2">Select Employees:</h3>
-          <div className="grid gap-2 mb-4">
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px'}}>
+          {/* Push Form */}
+          <div style={{backgroundColor: 'white', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0'}}>
+            <h2 style={{fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '16px'}}>Push Goal to Employees</h2>
+            <select value={thrustArea} onChange={(e) => setThrustArea(e.target.value)}
+              style={{width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#1e293b', backgroundColor: '#f8fafc', marginBottom: '12px', boxSizing: 'border-box'}}>
+              <option value="">Select Thrust Area</option>
+              <option value="Revenue Growth">Revenue Growth</option>
+              <option value="Customer Success">Customer Success</option>
+              <option value="Operational Excellence">Operational Excellence</option>
+              <option value="People Development">People Development</option>
+              <option value="Innovation">Innovation</option>
+            </select>
+            <select value={uom} onChange={(e) => setUom(e.target.value)}
+              style={{width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#1e293b', backgroundColor: '#f8fafc', marginBottom: '12px', boxSizing: 'border-box'}}>
+              <option value="Numeric">Numeric</option>
+              <option value="%">Percentage (%)</option>
+              <option value="Timeline">Timeline</option>
+              <option value="Zero-based">Zero-based</option>
+            </select>
+            <input type="text" placeholder="Goal Title" value={title} onChange={(e) => setTitle(e.target.value)}
+              style={{width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#1e293b', backgroundColor: '#f8fafc', marginBottom: '12px', boxSizing: 'border-box'}}/>
+            <textarea placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)}
+              style={{width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#1e293b', backgroundColor: '#f8fafc', marginBottom: '12px', boxSizing: 'border-box', height: '80px', resize: 'none'}}/>
+            <input type="number" placeholder="Target Value" value={target} onChange={(e) => setTarget(e.target.value)}
+              style={{width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#1e293b', backgroundColor: '#f8fafc', marginBottom: '16px', boxSizing: 'border-box'}}/>
+            <p style={{fontSize: '13px', fontWeight: '600', color: '#475569', marginBottom: '8px'}}>Select Employees:</p>
             {employees.map(emp => (
-              <label key={emp.id} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedEmployees.includes(emp.id)}
-                  onChange={() => toggleEmployee(emp.id)}
-                />
-                <span className="text-gray-700">{emp.name} ({emp.email})</span>
+              <label key={emp.id} style={{display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', backgroundColor: selectedEmployees.includes(emp.id) ? '#eff6ff' : '#f8fafc', borderRadius: '8px', marginBottom: '8px', cursor: 'pointer', border: '1px solid #e2e8f0'}}>
+                <input type="checkbox" checked={selectedEmployees.includes(emp.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) setSelectedEmployees([...selectedEmployees, emp.id])
+                    else setSelectedEmployees(selectedEmployees.filter(id => id !== emp.id))
+                  }}/>
+                <div>
+                  <p style={{fontSize: '14px', fontWeight: '500', color: '#1e293b', margin: 0}}>{emp.name}</p>
+                  <p style={{fontSize: '12px', color: '#64748b', margin: 0}}>{emp.email}</p>
+                </div>
               </label>
             ))}
+            <button onClick={handlePush}
+              style={{width: '100%', backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginTop: '8px'}}>
+              Push Goal to Selected Employees
+            </button>
           </div>
 
-          <button
-            onClick={handlePushGoal}
-            className="w-full bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-          >
-            Push Goal to Selected Employees
-          </button>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Previously Shared Goals</h2>
-          {sharedGoals.length === 0 ? (
-            <div className="bg-white p-8 rounded-lg shadow text-center text-gray-400">
-              No shared goals yet!
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {sharedGoals.map(goal => (
-                <div key={goal.id} className="bg-white p-4 rounded-lg shadow">
-                  <h3 className="font-bold text-gray-800">{goal.title}</h3>
-                  <p className="text-sm text-gray-500">{goal.thrust_area} | {goal.uom_type}</p>
-                  <p className="text-sm text-gray-600">Target: {goal.target}</p>
+          {/* Previously Shared */}
+          <div style={{backgroundColor: 'white', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0'}}>
+            <h2 style={{fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '16px'}}>Previously Shared Goals</h2>
+            {sharedGoals.length === 0 ? (
+              <div style={{textAlign: 'center', padding: '40px', color: '#94a3b8'}}>No shared goals yet</div>
+            ) : (
+              sharedGoals.map(goal => (
+                <div key={goal.id} style={{padding: '16px', backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '12px', border: '1px solid #e2e8f0'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                    <div>
+                      <span style={{fontSize: '12px', backgroundColor: '#eff6ff', color: '#2563eb', padding: '2px 8px', borderRadius: '20px'}}>{goal.thrust_area}</span>
+                      <h3 style={{fontSize: '15px', fontWeight: '600', color: '#1e293b', margin: '6px 0 2px 0'}}>{goal.title}</h3>
+                      <p style={{fontSize: '12px', color: '#64748b', margin: 0}}>{goal.users?.name} — Target: {goal.target}</p>
+                    </div>
+                    <span style={{fontSize: '12px', backgroundColor: '#f0fdf4', color: '#16a34a', padding: '2px 8px', borderRadius: '20px', fontWeight: '600'}}>SHARED</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
