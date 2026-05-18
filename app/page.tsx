@@ -24,53 +24,72 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div style={{minHeight:'100vh', display:'flex', fontFamily:'Inter, sans-serif'}}>
       {/* Left Panel */}
-      <div className="hidden md:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-900 text-white flex-col justify-center items-center p-12">
-        <div className="text-center">
-          <div className="text-7xl mb-6">🎯</div>
-          <h1 className="text-4xl font-bold mb-4">Goal Tracker Portal</h1>
-          <p className="text-blue-200 text-lg mb-8">
+      <div style={{
+        width:'50%',
+        background:'linear-gradient(135deg, #1e3a5f 0%, #0f2027 50%, #0a0e1a 100%)',
+        display:'flex',
+        flexDirection:'column',
+        justifyContent:'center',
+        alignItems:'center',
+        padding:'48px',
+        color:'white'
+      }}>
+        <div style={{textAlign:'center', maxWidth:'400px'}}>
+          <div style={{fontSize:'72px', marginBottom:'24px'}}>🎯</div>
+          <h1 style={{fontSize:'36px', fontWeight:'800', marginBottom:'12px', background:'linear-gradient(90deg, #00d4ff, #7c3aed)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent'}}>
+            Goal Tracker Portal
+          </h1>
+          <p style={{color:'#94a3b8', fontSize:'18px', marginBottom:'40px'}}>
             Align. Track. Achieve.
           </p>
-          <div className="grid gap-4 text-left">
-            <div className="flex items-center gap-3 bg-blue-700 bg-opacity-50 p-4 rounded-lg">
-              <span className="text-2xl">📋</span>
+          {[
+            {icon:'📋', title:'Set Goals', desc:'Create and align goals with org objectives'},
+            {icon:'✅', title:'Track Progress', desc:'Monitor achievements with real-time dashboards'},
+            {icon:'📊', title:'Analytics', desc:'Gain insights with powerful reporting tools'},
+          ].map((item, i) => (
+            <div key={i} style={{
+              display:'flex', alignItems:'center', gap:'16px',
+              background:'rgba(255,255,255,0.05)',
+              border:'1px solid rgba(0,212,255,0.2)',
+              borderRadius:'12px', padding:'16px', marginBottom:'12px',
+              textAlign:'left'
+            }}>
+              <span style={{fontSize:'28px'}}>{item.icon}</span>
               <div>
-                <p className="font-semibold">Set Goals</p>
-                <p className="text-blue-200 text-sm">Create and align goals with org objectives</p>
+                <p style={{fontWeight:'600', marginBottom:'4px'}}>{item.title}</p>
+                <p style={{color:'#94a3b8', fontSize:'13px'}}>{item.desc}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-blue-700 bg-opacity-50 p-4 rounded-lg">
-              <span className="text-2xl">✅</span>
-              <div>
-                <p className="font-semibold">Track Progress</p>
-                <p className="text-blue-200 text-sm">Monitor achievements with real-time dashboards</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-blue-700 bg-opacity-50 p-4 rounded-lg">
-              <span className="text-2xl">📊</span>
-              <div>
-                <p className="font-semibold">Analytics</p>
-                <p className="text-blue-200 text-sm">Gain insights with powerful reporting tools</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
       {/* Right Panel */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50 p-8">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="text-5xl mb-3">🎯</div>
-            <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-            <p className="text-gray-500 mt-2">Sign in to your Goal Tracker account</p>
+      <div style={{
+        width:'50%',
+        background:'#f8fafc',
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        padding:'48px'
+      }}>
+        <div style={{width:'100%', maxWidth:'420px'}}>
+          <div style={{textAlign:'center', marginBottom:'32px'}}>
+            <div style={{fontSize:'48px', marginBottom:'12px'}}>🎯</div>
+            <h2 style={{fontSize:'28px', fontWeight:'800', color:'#1e293b', marginBottom:'8px'}}>Welcome Back</h2>
+            <p style={{color:'#64748b'}}>Sign in to your Goal Tracker account</p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-lg">
-            <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div style={{
+            background:'white',
+            borderRadius:'16px',
+            padding:'32px',
+            boxShadow:'0 4px 24px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{marginBottom:'20px'}}>
+              <label style={{display:'block', fontSize:'14px', fontWeight:'600', color:'#374151', marginBottom:'6px'}}>
                 Email Address
               </label>
               <input
@@ -79,12 +98,17 @@ export default function Home() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                className="w-full border border-gray-300 p-3 rounded-lg bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{
+                  width:'100%', border:'2px solid #e5e7eb',
+                  borderRadius:'8px', padding:'12px',
+                  fontSize:'14px', outline:'none',
+                  boxSizing:'border-box'
+                }}
               />
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div style={{marginBottom:'24px'}}>
+              <label style={{display:'block', fontSize:'14px', fontWeight:'600', color:'#374151', marginBottom:'6px'}}>
                 Password
               </label>
               <input
@@ -93,12 +117,21 @@ export default function Home() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                className="w-full border border-gray-300 p-3 rounded-lg bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{
+                  width:'100%', border:'2px solid #e5e7eb',
+                  borderRadius:'8px', padding:'12px',
+                  fontSize:'14px', outline:'none',
+                  boxSizing:'border-box'
+                }}
               />
             </div>
 
             {message && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
+              <div style={{
+                background:'#fef2f2', color:'#dc2626',
+                padding:'12px', borderRadius:'8px',
+                marginBottom:'16px', fontSize:'14px'
+              }}>
                 ⚠️ {message}
               </div>
             )}
@@ -106,34 +139,43 @@ export default function Home() {
             <button
               onClick={handleLogin}
               disabled={loading}
-              className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-semibold transition-all disabled:opacity-50"
+              style={{
+                width:'100%', background:'linear-gradient(135deg, #2563eb, #7c3aed)',
+                color:'white', padding:'14px', borderRadius:'8px',
+                fontWeight:'700', fontSize:'16px', border:'none',
+                opacity: loading ? 0.7 : 1
+              }}
             >
               {loading ? '⏳ Signing in...' : 'Sign In →'}
             </button>
 
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <p className="text-xs text-gray-400 text-center mb-3">Demo Accounts</p>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => { setEmail('lavanysharma2023@gmail.com'); setPassword('Admin@123') }}
-                  className="text-xs bg-purple-50 text-purple-700 p-2 rounded-lg hover:bg-purple-100"
-                >
-                  👑 Admin
-                </button>
-                <button
-                  onClick={() => { setEmail('manager@test.com'); setPassword('Manager@123') }}
-                  className="text-xs bg-blue-50 text-blue-700 p-2 rounded-lg hover:bg-blue-100"
-                >
-                  👔 Manager
-                </button>
-                <button
-                  onClick={() => { setEmail('employee@test.com'); setPassword('Employee@123') }}
-                  className="text-xs bg-green-50 text-green-700 p-2 rounded-lg hover:bg-green-100"
-                >
-                  👤 Employee
-                </button>
+            <div style={{marginTop:'24px', paddingTop:'24px', borderTop:'1px solid #f1f5f9'}}>
+              <p style={{fontSize:'12px', color:'#9ca3af', textAlign:'center', marginBottom:'12px'}}>
+                Demo Accounts
+              </p>
+              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px'}}>
+                {[
+                  {label:'👑 Admin', email:'lavanysharma2023@gmail.com', pass:'Admin@123', bg:'#f5f3ff', color:'#7c3aed'},
+                  {label:'👔 Manager', email:'manager@test.com', pass:'Manager@123', bg:'#eff6ff', color:'#2563eb'},
+                  {label:'👤 Employee', email:'employee@test.com', pass:'Employee@123', bg:'#f0fdf4', color:'#16a34a'},
+                ].map((acc, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setEmail(acc.email); setPassword(acc.pass) }}
+                    style={{
+                      background:acc.bg, color:acc.color,
+                      border:'none', borderRadius:'8px',
+                      padding:'10px 6px', fontSize:'12px',
+                      fontWeight:'600'
+                    }}
+                  >
+                    {acc.label}
+                  </button>
+                ))}
               </div>
-              <p className="text-xs text-gray-400 text-center mt-2">Click to auto-fill credentials</p>
+              <p style={{fontSize:'11px', color:'#9ca3af', textAlign:'center', marginTop:'8px'}}>
+                Click to auto-fill credentials
+              </p>
             </div>
           </div>
         </div>

@@ -24,7 +24,7 @@ export default function Navigation() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    window.location.replace('/')
+    window.location.href = '/'
   }
 
   if (loading || !role) return null
@@ -35,29 +35,25 @@ export default function Navigation() {
       <div className="flex gap-4 items-center">
         {role === 'employee' && (
           <>
-            <a href="/dashboard" className="hover:underline">Dashboard</a>
-            <a href="/goals" className="hover:underline">My Goals</a>
-            <a href="/achievements" className="hover:underline">Achievements</a>
+            <a href="/dashboard" className="opacity-90 hover:opacity-100">Dashboard</a>
+            <a href="/goals" className="opacity-90 hover:opacity-100">My Goals</a>
+            <a href="/achievements" className="opacity-90 hover:opacity-100">Achievements</a>
           </>
         )}
         {role === 'manager' && (
           <>
-            <a href="/dashboard" className="hover:underline">Dashboard</a>
-            <a href="/approvals" className="hover:underline">Approvals</a>
-            <a href="/checkins" className="hover:underline">Check-ins</a>
-            <a href="/completion" className="hover:underline">Completion</a>
+            <a href="/dashboard" className="opacity-90 hover:opacity-100">Dashboard</a>
+            <a href="/approvals" className="opacity-90 hover:opacity-100">Approvals</a>
+            <a href="/checkins" className="opacity-90 hover:opacity-100">Check-ins</a>
           </>
         )}
         {role === 'admin' && (
           <>
-            <a href="/dashboard" className="hover:underline">Dashboard</a>
-            <a href="/approvals" className="hover:underline">Approvals</a>
-            <a href="/goals" className="hover:underline">All Goals</a>
-            <a href="/shared-goals" className="hover:underline">Shared Goals</a>
-            <a href="/completion" className="hover:underline">Completion</a>
-            <a href="/audit" className="hover:underline">Audit Trail</a>
-            <a href="/analytics" className="hover:underline">Analytics</a>
-            <a href="/escalation" className="hover:underline">Escalations</a>
+            <a href="/dashboard" className="opacity-90 hover:opacity-100">Dashboard</a>
+            <a href="/approvals" className="opacity-90 hover:opacity-100">Approvals</a>
+            <a href="/goals" className="opacity-90 hover:opacity-100">All Goals</a>
+            <a href="/analytics" className="opacity-90 hover:opacity-100">Analytics</a>
+            <a href="/audit" className="opacity-90 hover:opacity-100">Audit Trail</a>
           </>
         )}
         <span className="bg-white text-blue-600 px-2 py-1 rounded text-sm font-medium">
@@ -65,7 +61,7 @@ export default function Navigation() {
         </span>
         <button
           onClick={handleLogout}
-          className="bg-red-500 px-3 py-1 rounded hover:bg-red-600 text-sm"
+          className="bg-red-500 px-3 py-1 rounded text-sm"
         >
           Logout
         </button>
