@@ -1,6 +1,20 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import emailjs from '@emailjs/browser'
+
+const sendEmail = async (toEmail: string, toName: string, message: string) => {
+  try {
+    await emailjs.send(
+      'goal_tracker',
+      'template_8h98t8z',
+      { to_email: toEmail, to_name: toName, message, subject: 'Goal Update' },
+      't6Jw_77lDhkFVbdlA'
+    )
+  } catch (err) {
+    console.log('Email error:', err)
+  }
+}
 
 export default function Approvals() {
   const [goals, setGoals] = useState<any[]>([])
@@ -29,28 +43,29 @@ export default function Approvals() {
   }
 
   const handleApprove = async (goalId: any) => {
-    await supabase
-      .from('goals')
-      .update({ status: 'approved', locked: true })
-      .eq('id', goalId)
+    const { data: goalData } = await supabase.from('goals').select('*').eq('id', goalId).single()
+    await supabase.from('goals').update({ status: 'approved', locked: true }).eq('id', goalId)
+    if (goalData) {
+      const { data: empData } = await supabase.from('users').select('*').eq('id', goalData.employee_id).single()
+      if (empData) await sendEmail(empData.email, empData.name, `Your goal "${goalData.title}" has been approved! 🎉 You can now track your achievements.`)
+    }
     showToast('✅ Goal approved and locked!', 'success')
     fetchPendingGoals()
   }
 
   const handleReject = async (goalId: any) => {
-    await supabase
-      .from('goals')
-      .update({ status: 'draft' })
-      .eq('id', goalId)
+    const { data: goalData } = await supabase.from('goals').select('*').eq('id', goalId).single()
+    await supabase.from('goals').update({ status: 'draft' }).eq('id', goalId)
+    if (goalData) {
+      const { data: empData } = await supabase.from('users').select('*').eq('id', goalData.employee_id).single()
+      if (empData) await sendEmail(empData.email, empData.name, `Your goal "${goalData.title}" has been returned for rework. Please review and resubmit.`)
+    }
     showToast('↩ Goal sent back for rework!', 'info')
     fetchPendingGoals()
   }
 
   const handleEdit = async (goalId: any, field: string, value: any) => {
-    await supabase
-      .from('goals')
-      .update({ [field]: value })
-      .eq('id', goalId)
+    await supabase.from('goals').update({ [field]: value }).eq('id', goalId)
     fetchPendingGoals()
   }
 
