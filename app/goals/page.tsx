@@ -13,7 +13,7 @@ const getActivePhase = () => {
 }
 
 export default function Goals() {
-  const [goals, setGoals] = useState([])
+  const [goals, setGoals] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
   const [showForm, setShowForm] = useState(false)
   const [thrustArea, setThrustArea] = useState('')
@@ -23,6 +23,14 @@ export default function Goals() {
   const [target, setTarget] = useState('')
   const [weightage, setWeightage] = useState('')
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('info')
+  const [loading, setLoading] = useState(true)
+
+  const showToast = (msg: string, type: string = 'info') => {
+    setMessage(msg)
+    setMessageType(type)
+    setTimeout(() => setMessage(''), 3000)
+  }
 
   useEffect(() => {
     const getUser = async () => {
@@ -35,7 +43,8 @@ export default function Goals() {
     getUser()
   }, [])
 
-  const fetchGoals = async (email) => {
+  const fetchGoals = async (email: any) => {
+    setLoading(true)
     const { data: userData } = await supabase
       .from('users')
       .select('id')
@@ -49,13 +58,14 @@ export default function Goals() {
         .eq('employee_id', userData.id)
       setGoals(data || [])
     }
+    setLoading(false)
   }
 
   const totalWeightage = goals.reduce((sum, g) => sum + g.weightage, 0)
 
   const handleSubmitAll = async () => {
     if (totalWeightage !== 100) {
-      setMessage(`Total weightage must be exactly 100%! Currently: ${totalWeightage}%`)
+      showToast(`Total weightage must be exactly 100%! Currently: ${totalWeightage}%`, 'error')
       return
     }
     const { data: userData } = await supabase
@@ -70,25 +80,25 @@ export default function Goals() {
       .eq('employee_id', userData.id)
       .eq('status', 'draft')
 
-    setMessage('Goals submitted for approval!')
+    showToast('✅ Goals submitted for approval!', 'success')
     fetchGoals(user.email)
   }
 
   const handleAddGoal = async () => {
     if (!title || !target || !weightage) {
-      setMessage('Please fill in all fields!')
+      showToast('Please fill in all fields!', 'error')
       return
     }
     if (Number(weightage) < 10) {
-      setMessage('Minimum weightage is 10%!')
+      showToast('Minimum weightage is 10%!', 'error')
       return
     }
     if (goals.length >= 8) {
-      setMessage('Maximum 8 goals allowed!')
+      showToast('Maximum 8 goals allowed!', 'error')
       return
     }
     if (totalWeightage + Number(weightage) > 100) {
-      setMessage('Total weightage cannot exceed 100%!')
+      showToast('Total weightage cannot exceed 100%!', 'error')
       return
     }
 
@@ -112,9 +122,9 @@ export default function Goals() {
     })
 
     if (error) {
-      setMessage('Error adding goal!')
+      showToast('Error adding goal!', 'error')
     } else {
-      setMessage('Goal added successfully!')
+      showToast('✅ Goal added successfully!', 'success')
       setTitle('')
       setDescription('')
       setTarget('')
@@ -126,13 +136,34 @@ export default function Goals() {
 
   const phase = getActivePhase()
 
+  if (loading) return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-500 text-lg">Loading your goals...</p>
+      </div>
+    </div>
+  )
+
   return (
     <div className="min-h-screen bg-gray-100">
+      {message && (
+        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all ${
+          messageType === 'success' ? 'bg-green-500' :
+          messageType === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`}>
+          {message}
+        </div>
+      )}
+
       <div className="bg-white shadow p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-blue-600">My Goals</h1>
+        <div className="flex items-center gap-3">
+          <a href="/dashboard" className="text-gray-400 hover:text-blue-600 text-sm">← Dashboard</a>
+          <h1 className="text-xl font-bold text-blue-600">My Goals</h1>
+        </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">
-            Total Weightage: <strong>{totalWeightage}%</strong> / 100%
+          <span className={`text-sm font-medium ${totalWeightage === 100 ? 'text-green-600' : 'text-gray-600'}`}>
+            Weightage: <strong>{totalWeightage}%</strong> / 100%
           </span>
           {phase === 'GOAL_SETTING' ? (
             <>
@@ -158,12 +189,6 @@ export default function Goals() {
       </div>
 
       <div className="p-8">
-        {message && (
-          <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4">
-            {message}
-          </div>
-        )}
-
         {showForm && (
           <div className="bg-white p-6 rounded-lg shadow mb-6">
             <h2 className="text-lg font-bold mb-4 text-gray-800">Add New Goal</h2>
@@ -236,8 +261,16 @@ export default function Goals() {
         )}
 
         {goals.length === 0 ? (
-          <div className="bg-white p-8 rounded-lg shadow text-center text-gray-400">
-            No goals yet. Click + Add Goal to get started!
+          <div className="bg-white p-12 rounded-lg shadow text-center">
+            <div className="text-6xl mb-4">🎯</div>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">No Goals Yet</h3>
+            <p className="text-gray-400 mb-6">Start by adding your first goal for this quarter!</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            >
+              + Add Your First Goal
+            </button>
           </div>
         ) : (
           <div className="grid gap-4">
@@ -247,22 +280,24 @@ export default function Goals() {
                   <div>
                     <h3 className="text-lg font-bold text-gray-800">{goal.title}</h3>
                     <p className="text-gray-500 text-sm mt-1">{goal.description}</p>
+                    <p className="text-gray-400 text-xs mt-1">{goal.thrust_area} | {goal.uom_type}</p>
                   </div>
                   <div className="text-right">
-                    <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
+                    <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
                       {goal.weightage}%
                     </span>
                     <p className="text-gray-500 text-sm mt-1">Target: {goal.target}</p>
                   </div>
                 </div>
                 <div className="mt-3">
-                  <span className={`text-xs px-2 py-1 rounded-full ${
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                     goal.status === 'approved' ? 'bg-green-100 text-green-600' :
                     goal.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
                     'bg-gray-100 text-gray-600'
                   }`}>
                     {goal.status.toUpperCase()}
                   </span>
+                  {goal.locked && <span className="ml-2 text-xs text-gray-400">🔒 Locked</span>}
                 </div>
               </div>
             ))}

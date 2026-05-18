@@ -5,17 +5,27 @@ import { supabase } from '../supabaseClient'
 export default function Approvals() {
   const [goals, setGoals] = useState<any[]>([])
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('info')
+  const [loading, setLoading] = useState(true)
+
+  const showToast = (msg: string, type: string = 'info') => {
+    setMessage(msg)
+    setMessageType(type)
+    setTimeout(() => setMessage(''), 3000)
+  }
 
   useEffect(() => {
     fetchPendingGoals()
   }, [])
 
   const fetchPendingGoals = async () => {
+    setLoading(true)
     const { data } = await supabase
       .from('goals')
       .select('*')
       .eq('status', 'pending')
     setGoals(data || [])
+    setLoading(false)
   }
 
   const handleApprove = async (goalId: any) => {
@@ -23,7 +33,7 @@ export default function Approvals() {
       .from('goals')
       .update({ status: 'approved', locked: true })
       .eq('id', goalId)
-    setMessage('Goal approved and locked!')
+    showToast('✅ Goal approved and locked!', 'success')
     fetchPendingGoals()
   }
 
@@ -32,7 +42,7 @@ export default function Approvals() {
       .from('goals')
       .update({ status: 'draft' })
       .eq('id', goalId)
-    setMessage('Goal sent back for rework!')
+    showToast('↩ Goal sent back for rework!', 'info')
     fetchPendingGoals()
   }
 
@@ -44,22 +54,40 @@ export default function Approvals() {
     fetchPendingGoals()
   }
 
+  if (loading) return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-500 text-lg">Loading pending approvals...</p>
+      </div>
+    </div>
+  )
+
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="bg-white shadow p-4">
+      {message && (
+        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${
+          messageType === 'success' ? 'bg-green-500' :
+          messageType === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`}>
+          {message}
+        </div>
+      )}
+
+      <div className="bg-white shadow p-4 flex items-center gap-3">
+        <a href="/dashboard" className="text-gray-400 hover:text-blue-600 text-sm">← Dashboard</a>
         <h1 className="text-xl font-bold text-blue-600">Manager Approvals</h1>
       </div>
 
       <div className="p-8">
-        {message && (
-          <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4">
-            {message}
-          </div>
-        )}
-
         {goals.length === 0 ? (
-          <div className="bg-white p-8 rounded-lg shadow text-center text-gray-400">
-            No pending approvals!
+          <div className="bg-white p-12 rounded-lg shadow text-center">
+            <div className="text-6xl mb-4">✅</div>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">All Caught Up!</h3>
+            <p className="text-gray-400">No pending goals to approve right now.</p>
+            <a href="/dashboard" className="inline-block mt-6 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+              Back to Dashboard
+            </a>
           </div>
         ) : (
           <div className="grid gap-4">
@@ -96,8 +124,8 @@ function GoalCard({ goal, onApprove, onReject, onEdit }: { goal: any, onApprove:
         <div className="flex-1">
           <h3 className="text-lg font-bold text-gray-800">{goal.title}</h3>
           <p className="text-gray-500 text-sm mt-1">{goal.description}</p>
-          <p className="text-gray-500 text-sm mt-1">
-            Thrust Area: <strong>{goal.thrust_area || 'General'}</strong> | 
+          <p className="text-gray-400 text-xs mt-1">
+            Thrust Area: <strong>{goal.thrust_area || 'General'}</strong> |
             UoM: <strong>{goal.uom_type}</strong>
           </p>
 
@@ -136,7 +164,7 @@ function GoalCard({ goal, onApprove, onReject, onEdit }: { goal: any, onApprove:
             </div>
           ) : (
             <p className="text-gray-600 text-sm mt-2">
-              Target: <strong>{goal.target}</strong> | 
+              Target: <strong>{goal.target}</strong> |
               Weightage: <strong>{goal.weightage}%</strong>
             </p>
           )}
