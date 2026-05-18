@@ -13,6 +13,7 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true)
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+  const THRUST_AREAS = ['Revenue Growth', 'Customer Success', 'Operational Excellence', 'People Development', 'Innovation']
 
   useEffect(() => {
     fetchAnalytics()
@@ -23,7 +24,6 @@ export default function Analytics() {
     const { data: goals } = await supabase.from('goals').select('*')
     if (!goals) return
 
-    // Goals by thrust area
     const thrustMap: any = {}
     goals.forEach(g => {
       const area = g.thrust_area || 'General'
@@ -31,14 +31,12 @@ export default function Analytics() {
     })
     setGoalsByThrust(Object.entries(thrustMap).map(([name, count]) => ({ name, count })))
 
-    // Goals by status
     const statusMap: any = {}
     goals.forEach(g => {
       statusMap[g.status] = (statusMap[g.status] || 0) + 1
     })
     setGoalsByStatus(Object.entries(statusMap).map(([name, value]) => ({ name, value })))
 
-    // Goals by UoM type
     const uomMap: any = {}
     goals.forEach(g => {
       const uom = g.uom_type || 'Numeric'
@@ -46,7 +44,6 @@ export default function Analytics() {
     })
     setGoalsByUom(Object.entries(uomMap).map(([name, value]) => ({ name, value })))
 
-    // QoQ simulated trend data
     setQoqData([
       { quarter: 'Q1 2025', approved: 8, pending: 3, draft: 2 },
       { quarter: 'Q2 2025', approved: 12, pending: 2, draft: 1 },
@@ -55,18 +52,25 @@ export default function Analytics() {
       { quarter: 'Q1 2026', approved: goals.filter(g => g.status === 'approved').length, pending: goals.filter(g => g.status === 'pending').length, draft: goals.filter(g => g.status === 'draft').length },
     ])
 
-    // Employee completion
     const { data: users } = await supabase.from('users').select('*').eq('role', 'employee')
     if (users) {
       const completion = await Promise.all(users.map(async (user) => {
         const { count: total } = await supabase.from('goals').select('*', { count: 'exact' }).eq('employee_id', user.id)
         const { count: approved } = await supabase.from('goals').select('*', { count: 'exact' }).eq('employee_id', user.id).eq('status', 'approved')
-        return { name: user.name, total: total || 0, approved: approved || 0 }
+
+        // Per thrust area completion
+        const thrustScores: any = {}
+        for (const area of THRUST_AREAS) {
+          const { count: aTotal } = await supabase.from('goals').select('*', { count: 'exact' }).eq('employee_id', user.id).eq('thrust_area', area)
+          const { count: aApproved } = await supabase.from('goals').select('*', { count: 'exact' }).eq('employee_id', user.id).eq('thrust_area', area).eq('status', 'approved')
+          thrustScores[area] = aTotal ? Math.round(((aApproved || 0) / aTotal) * 100) : 0
+        }
+
+        return { name: user.name, total: total || 0, approved: approved || 0, thrustScores }
       }))
       setCompletionData(completion)
     }
 
-    // Manager effectiveness
     const { data: managers } = await supabase.from('users').select('*').eq('role', 'manager')
     if (managers) {
       const effectiveness = await Promise.all(managers.map(async (mgr) => {
@@ -78,6 +82,13 @@ export default function Analytics() {
     }
 
     setLoading(false)
+  }
+
+  const getHeatColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500'
+    if (score >= 50) return 'bg-yellow-400'
+    if (score >= 20) return 'bg-orange-400'
+    return 'bg-red-400'
   }
 
   if (loading) return (
@@ -164,6 +175,48 @@ export default function Analytics() {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Completion Heatmap */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-lg font-bold text-gray-800 mb-1">Completion Rate Heatmap</h2>
+          <p className="text-sm text-gray-400 mb-4">Goal completion rates across employees and thrust areas</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="p-3 text-left text-gray-600 font-medium">Employee</th>
+                  {THRUST_AREAS.map(area => (
+                    <th key={area} className="p-3 text-center text-gray-600 font-medium text-xs">{area}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {completionData.map((emp, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="p-3 font-medium text-gray-800">{emp.name}</td>
+                    {THRUST_AREAS.map(area => {
+                      const score = emp.thrustScores?.[area] ?? 0
+                      return (
+                        <td key={area} className="p-3 text-center">
+                          <div className={`${getHeatColor(score)} text-white text-xs font-bold px-2 py-2 rounded-lg mx-auto w-16`}>
+                            {score}%
+                          </div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
+              <span className="font-medium">Legend:</span>
+              <span className="flex items-center gap-1"><span className="w-4 h-4 bg-green-500 rounded inline-block"></span> 80%+ Excellent</span>
+              <span className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-400 rounded inline-block"></span> 50-79% Good</span>
+              <span className="flex items-center gap-1"><span className="w-4 h-4 bg-orange-400 rounded inline-block"></span> 20-49% Needs Attention</span>
+              <span className="flex items-center gap-1"><span className="w-4 h-4 bg-red-400 rounded inline-block"></span> Below 20% Critical</span>
+            </div>
           </div>
         </div>
 
