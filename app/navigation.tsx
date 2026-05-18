@@ -25,6 +25,7 @@ export default function Navigation() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     window.location.href = '/'
+    window.location.reload()
   }
 
   if (loading || !role) return null
