@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient'
 
 export default function Achievements() {
   const [goals, setGoals] = useState([])
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<any>(null)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
