@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
 export default function Achievements() {
-  const [goals, setGoals] = useState([])
-  const [user, setUser] = useState(null)
+  const [goals, setGoals] = useState<any[]>([])
+  const [user, setUser] = useState<any>(null)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Achievements() {
     }
   }
 
-  const handleUpdateAchievement = async (goalId, actualValue, status) => {
+  const handleUpdateAchievement = async (goalId: any, actualValue: any, status: any) => {
     const { error } = await supabase
       .from('achievements')
       .upsert({
@@ -85,14 +85,14 @@ export default function Achievements() {
   )
 }
 
-function AchievementCard({ goal, onUpdate }) {
+function AchievementCard({ goal, onUpdate }: { goal: any, onUpdate: any }) {
   const [actualValue, setActualValue] = useState('')
   const [status, setStatus] = useState('Not Started')
 
   const getScore = () => {
     if (!actualValue) return 0
-    if (goal.uom_type === 'Zero-based') return actualValue == 0 ? 100 : 0
-    return Math.min(Math.round((actualValue / goal.target) * 100), 100)
+    if (goal.uom_type === 'Zero-based') return Number(actualValue) == 0 ? 100 : 0
+    return Math.min(Math.round((Number(actualValue) / goal.target) * 100), 100)
   }
 
   const score = getScore()
