@@ -65,7 +65,7 @@ export default function Navigation() {
             <a href="/approvals" style={{color: 'white', textDecoration: 'none', fontSize: '15px'}}>Approvals</a>
             <a href="/goals" style={{color: 'white', textDecoration: 'none', fontSize: '15px'}}>All Goals</a>
             <a href="/analytics" style={{color: 'white', textDecoration: 'none', fontSize: '15px'}}>Analytics</a>
-            <a href="/audit" style={{color: 'white', textDecoration: 'none', fontSize: '15px'}}>Audit Trail</a>
+            <a href="/costs" style={{color: 'white', textDecoration: 'none', fontSize: '15px'}}>Cost Info</a>
           </>
         )}
         <span style={{backgroundColor: 'white', color: '#2563eb', padding: '4px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: '600'}}>
