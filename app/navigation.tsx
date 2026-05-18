@@ -53,6 +53,7 @@ export default function Navigation() {
             <a href="/approvals" className="hover:underline">Approvals</a>
             <a href="/goals" className="hover:underline">All Goals</a>
             <a href="/audit" className="hover:underline">Audit Trail</a>
+            <a href="/analytics" className="hover:underline">Analytics</a>
           </>
         )}
         <span className="bg-white text-blue-600 px-2 py-1 rounded text-sm font-medium">
