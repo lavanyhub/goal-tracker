@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient'
 
 export default function Goals() {
   const [goals, setGoals] = useState([])
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<any>(null)
   const [showForm, setShowForm] = useState(false)
   const [thrustArea, setThrustArea] = useState('')
   const [uom, setUom] = useState('Numeric')

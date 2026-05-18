@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
 export default function Checkins() {
-  const [employees, setEmployees] = useState([])
-  const [selectedEmployee, setSelectedEmployee] = useState(null)
-  const [goals, setGoals] = useState([])
+  const [employees, setEmployees] = useState<any[]>([])
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null)
+  const [goals, setGoals] = useState<any[]>([])
   const [comment, setComment] = useState('')
   const [message, setMessage] = useState('')
 
@@ -21,7 +21,7 @@ export default function Checkins() {
     setEmployees(data || [])
   }
 
-  const fetchEmployeeGoals = async (employeeId) => {
+  const fetchEmployeeGoals = async (employeeId: any) => {
     const { data: goalsData } = await supabase
       .from('goals')
       .select('*')
@@ -44,7 +44,7 @@ export default function Checkins() {
     }
   }
 
-  const handleSelectEmployee = (employee) => {
+  const handleSelectEmployee = (employee: any) => {
     setSelectedEmployee(employee)
     fetchEmployeeGoals(employee.id)
   }
@@ -58,11 +58,11 @@ export default function Checkins() {
     const { data: managerData } = await supabase
       .from('users')
       .select('id')
-      .eq('email', user.email)
+      .eq('email', user?.email)
       .single()
 
     await supabase.from('checkins').insert({
-      manager_id: managerData.id,
+      manager_id: managerData?.id,
       employee_id: selectedEmployee.id,
       quarter: 'Q1',
       comment

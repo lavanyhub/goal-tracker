@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
 export default function AuditTrail() {
-  const [logs, setLogs] = useState([])
+  const [logs, setLogs] = useState<any[]>([])
 
   useEffect(() => {
     fetchLogs()

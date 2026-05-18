@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
 export default function Approvals() {
-  const [goals, setGoals] = useState([])
+  const [goals, setGoals] = useState<any[]>([])
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function Approvals() {
     setGoals(data || [])
   }
 
-  const handleApprove = async (goalId) => {
+  const handleApprove = async (goalId: any) => {
     await supabase
       .from('goals')
       .update({ status: 'approved', locked: true })
@@ -28,7 +28,7 @@ export default function Approvals() {
     fetchPendingGoals()
   }
 
-  const handleReject = async (goalId) => {
+  const handleReject = async (goalId: any) => {
     await supabase
       .from('goals')
       .update({ status: 'draft' })

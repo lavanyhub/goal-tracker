@@ -69,7 +69,7 @@ export default function Dashboard() {
   )
 }
 
-function AdminDashboard({ stats }) {
+function AdminDashboard({ stats }: { stats: any }) {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Admin Dashboard</h2>
@@ -95,7 +95,7 @@ function AdminDashboard({ stats }) {
   )
 }
 
-function ManagerDashboard({ stats }) {
+function ManagerDashboard({ stats }: { stats: any }) {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Manager Dashboard</h2>
@@ -116,7 +116,7 @@ function ManagerDashboard({ stats }) {
   )
 }
 
-function EmployeeDashboard({ stats }) {
+function EmployeeDashboard({ stats }: { stats: any }) {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Employee Dashboard</h2>
