@@ -71,6 +71,30 @@ export default function Checkins() {
     setComment('')
   }
 
+  const exportExcel = () => {
+    const rows = [['Employee', 'Goal Title', 'Thrust Area', 'Target', 'Actual', 'Status', 'Score']]
+    goals.forEach(goal => {
+      const actual = goal.achievement?.actual_value || 0
+      const score = Math.min(Math.round((actual / goal.target) * 100), 100)
+      rows.push([
+        selectedEmployee.name,
+        goal.title,
+        goal.thrust_area || 'General',
+        goal.target,
+        actual,
+        goal.achievement?.status || 'Not Started',
+        score + '%'
+      ])
+    })
+    const csv = rows.map(r => r.join('\t')).join('\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'application/vnd.ms-excel' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${selectedEmployee.name}_Q1_Report.xls`
+    a.click()
+  }
+
   const exportCSV = () => {
     const rows = [
       ['Employee', 'Goal Title', 'Thrust Area', 'Target', 'Actual', 'Status', 'Score']
@@ -138,6 +162,12 @@ export default function Checkins() {
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                 >
                   📥 Export CSV
+                </button>
+                <button
+                  onClick={exportExcel}
+                  className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                >
+                  📊 Export Excel
                 </button>
               </div>
 
