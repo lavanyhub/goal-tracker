@@ -58,6 +58,7 @@ export default function Navigation() {
             <a href="/audit" style={{color: 'white', textDecoration: 'none', fontSize: '14px'}}>Audit Trail</a>
             <a href="/analytics" style={{color: 'white', textDecoration: 'none', fontSize: '14px'}}>Analytics</a>
             <a href="/escalation" style={{color: 'white', textDecoration: 'none', fontSize: '14px'}}>Escalations</a>
+            <a href="/admin" style={{color: 'white', textDecoration: 'none', fontSize: '14px'}}>Admin Panel</a>
             <a href="/costs" style={{color: 'white', textDecoration: 'none', fontSize: '14px'}}>Cost Info</a>
           </>
         )}
