@@ -2,6 +2,16 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
+const getActivePhase = () => {
+  const month = new Date().getMonth() + 1
+  if (month === 5) return 'GOAL_SETTING'
+  if (month >= 7 && month <= 9) return 'Q1_CHECKIN'
+  if (month >= 10 && month <= 12) return 'Q2_CHECKIN'
+  if (month >= 1 && month <= 3) return 'Q3_CHECKIN'
+  if (month >= 3 && month <= 4) return 'Q4_ANNUAL'
+  return 'CLOSED'
+}
+
 export default function Goals() {
   const [goals, setGoals] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
