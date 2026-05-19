@@ -23,6 +23,7 @@ export default function Goals() {
   const [target, setTarget] = useState('')
   const [weightage, setWeightage] = useState('')
   const [message, setMessage] = useState('')
+  const phase = getActivePhase()
   const [messageType, setMessageType] = useState('info')
 
   const showToast = (msg: string, type: string = 'info') => {
@@ -161,12 +162,18 @@ export default function Goals() {
           >
             Submit for Approval
           </button>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            style={{backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer'}}
-          >
-            + Add Goal
-          </button>
+          {phase === 'GOAL_SETTING' ? (
+            <button
+              onClick={() => setShowForm(!showForm)}
+              style={{backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer'}}
+            >
+              + Add Goal
+            </button>
+          ) : (
+            <span style={{backgroundColor: '#fef2f2', color: '#ef4444', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600'}}>
+              🔒 Goal setting closed — Current phase: {phase}
+            </span>
+          )}
         </div>
       </div>
 
